@@ -123,6 +123,8 @@ news_attr_list:
     | news_attr_list ',' T_IMAGE
     | T_TEXT
     | news_attr_list ',' T_TEXT
+    | T_SOURCE
+    | news_attr_list ',' T_SOURCE
 ;
 
 %%
