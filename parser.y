@@ -1,9 +1,13 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
 
 int yyerror(const char* errmsg);
 int yylex(void);
+
+char* concat(int count, ...);
 %}
 
 %union{
@@ -11,8 +15,7 @@ int yylex(void);
     unsigned long num;
 }
 
-%token <str> T_TEXT
-%token <str> T_LITERAL_STRING
+%token T_TEXT
 %token T_NEWSPAPER
 %token T_TITLE
 %token T_DATE
@@ -25,6 +28,9 @@ int yylex(void);
 %token T_SHOW
 %token T_NEWSNAME
 %token <num> T_NUM
+%token <str> T_QUOTED_STRING
+
+%type <str> literal_string quoted_string_list
 
 %start newspaper_stmt
 
@@ -40,10 +46,19 @@ newspaper_stmt: T_NEWSPAPER '{'
 '}'
 ;
 
-title_stmt: T_TITLE '=' T_LITERAL_STRING
+literal_string: '"' quoted_string_list '"'
+{ $$ = $2; }
 ;
 
-date_stmt: T_DATE '=' T_LITERAL_STRING
+quoted_string_list:
+    T_QUOTED_STRING { $$ = $1; }
+    | quoted_string_list T_QUOTED_STRING { $$ = concat(2, $1, $2); }
+;
+
+title_stmt: T_TITLE '=' literal_string
+;
+
+date_stmt: T_DATE '=' literal_string
 ;
 
 structure_stmt: T_STRUCTURE '{'
@@ -87,19 +102,19 @@ news_attrs_stmt:
     | news_attrs_stmt source_stmt
 ;
 
-abstract_stmt: T_ABSTRACT '=' T_LITERAL_STRING
+abstract_stmt: T_ABSTRACT '=' literal_string
 ;
 
-author_stmt: T_AUTHOR '=' T_LITERAL_STRING
+author_stmt: T_AUTHOR '=' literal_string
 ;
 
-image_stmt: T_IMAGE '=' T_LITERAL_STRING
+image_stmt: T_IMAGE '=' literal_string
 ;
 
-text_stmt: T_TEXT '=' T_LITERAL_STRING
+text_stmt: T_TEXT '=' literal_string
 ;
 
-source_stmt: T_SOURCE '=' T_LITERAL_STRING
+source_stmt: T_SOURCE '=' literal_string
 ;
 
 news_structure_stmt: T_STRUCTURE '{'
@@ -128,6 +143,32 @@ news_attr_list:
 ;
 
 %%
+
+char* concat(int count, ...)
+{
+    va_list ap;
+    int len = 1, i;
+
+    va_start(ap, count);
+    for(i=0 ; i<count ; i++)
+        len += strlen(va_arg(ap, char*));
+    va_end(ap);
+
+    char *result = (char*) calloc(sizeof(char),len);
+    int pos = 0;
+
+    // Actually concatenate strings
+    va_start(ap, count);
+    for(i=0 ; i<count ; i++)
+    {
+        char *s = va_arg(ap, char*);
+        strcpy(result+pos, s);
+        pos += strlen(s);
+    }
+    va_end(ap);
+
+    return result;
+}
 
 int yyerror(const char* errmsg)
 {

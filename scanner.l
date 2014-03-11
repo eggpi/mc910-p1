@@ -6,6 +6,7 @@
 WHITESPACE [ \n\r\t]+
 
 %option case-insensitive
+%x LITERAL_STRING
 
 %%
 
@@ -26,14 +27,10 @@ WHITESPACE [ \n\r\t]+
 ","                 { return ','; }
 ";"                 { return ';'; }
 "="                 { return '='; }
+"\""                { BEGIN(LITERAL_STRING); return '"'; }
 
 \/\/.*$ {
     // ignore comments
-}
-
-\".*\" {
-    yylval.str = (char *) strdup(yytext);
-    return T_LITERAL_STRING;
 }
 
 [a-z][a-zA-Z0-9_]* {
@@ -44,6 +41,21 @@ WHITESPACE [ \n\r\t]+
 [0-9]+ {
     yylval.num = strtoul(yytext, NULL, 10);
     return T_NUM;
+}
+
+<LITERAL_STRING>[^\\"]* {
+    yylval.str = (char *) strdup(yytext);
+    return T_QUOTED_STRING;
+}
+
+<LITERAL_STRING>\" {
+    BEGIN(INITIAL);
+    return '"';
+}
+
+<LITERAL_STRING>\\\" {
+    yylval.str = (char *) strdup(yytext);
+    return T_QUOTED_STRING;
 }
 
 . {
