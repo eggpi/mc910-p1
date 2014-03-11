@@ -83,6 +83,8 @@ news_attrs_stmt:
     | news_attrs_stmt image_stmt
     | text_stmt
     | news_attrs_stmt text_stmt
+    | source_stmt
+    | news_attrs_stmt source_stmt
 ;
 
 abstract_stmt: T_ABSTRACT '=' T_LITERAL_STRING
@@ -95,6 +97,9 @@ image_stmt: T_IMAGE '=' T_LITERAL_STRING
 ;
 
 text_stmt: T_TEXT '=' T_LITERAL_STRING
+;
+
+source_stmt: T_SOURCE '=' T_LITERAL_STRING
 ;
 
 news_structure_stmt: T_STRUCTURE '{'
