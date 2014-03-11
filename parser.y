@@ -5,7 +5,7 @@
 int yyerror(const char* errmsg);
 int yylex(void);
 %}
- 
+
 %union{
     char *str;
     unsigned long num;
@@ -29,7 +29,7 @@ int yylex(void);
 %start newspaper_stmt
 
 %error-verbose
- 
+
 %%
 
 newspaper_stmt: T_NEWSPAPER '{'
@@ -126,17 +126,17 @@ news_attr_list:
 ;
 
 %%
- 
+
 int yyerror(const char* errmsg)
 {
     fprintf(stderr, "\nError: %s\n", errmsg);
     return 0;
 }
- 
+
 int yywrap(void) {
     return 1;
 }
- 
+
 int main(int argc, char** argv)
 {
     yyparse();
