@@ -43,9 +43,9 @@ WHITESPACE [ \n\r\t]+
     return T_NUM;
 }
 
-<LITERAL_STRING>[^\\"]* {
+<LITERAL_STRING>[^\\":*#] {
     yylval.str = (char *) strdup(yytext);
-    return T_QUOTED_STRING;
+    return T_QUOTED_CHAR;
 }
 
 <LITERAL_STRING>\" {
@@ -55,7 +55,39 @@ WHITESPACE [ \n\r\t]+
 
 <LITERAL_STRING>\\\" {
     yylval.str = (char *) strdup(yytext);
-    return T_QUOTED_STRING;
+    return T_QUOTED_CHAR;
+}
+
+<LITERAL_STRING>''' {
+    return T_BOLD;
+}
+
+<LITERAL_STRING>'' {
+    return T_ITALICIZED;
+}
+
+<LITERAL_STRING>=== {
+    return T_TITLE_PARAGRAPH;
+}
+
+<LITERAL_STRING>\[[^|]+\|[^\]]+\] {
+    return T_TEXT_LINK;
+}
+
+<LITERAL_STRING>\[\[[^|]+\|[^\]]+\]\] {
+    return T_IMAGE_LINK;
+}
+
+<LITERAL_STRING>: {
+    return T_PARAGRAPH;
+}
+
+<LITERAL_STRING>\* {
+    return T_BULLET;
+}
+
+<LITERAL_STRING># {
+    return T_ENUMERATION;
 }
 
 . {

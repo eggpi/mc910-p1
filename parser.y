@@ -27,10 +27,18 @@ char* concat(int count, ...);
 %token T_COL
 %token T_SHOW
 %token T_NEWSNAME
+%token T_BOLD;
+%token T_ITALICIZED;
+%token T_TITLE_PARAGRAPH;
+%token T_TEXT_LINK;
+%token T_IMAGE_LINK;
+%token T_PARAGRAPH;
+%token T_BULLET;
+%token T_ENUMERATION;
 %token <num> T_NUM
-%token <str> T_QUOTED_STRING
+%token <str> T_QUOTED_CHAR
 
-%type <str> literal_string quoted_string_list
+%type <str> literal_string quoted_string
 
 %start newspaper_stmt
 
@@ -46,13 +54,21 @@ newspaper_stmt: T_NEWSPAPER '{'
 '}'
 ;
 
-literal_string: '"' quoted_string_list '"'
+literal_string: '"' quoted_string '"'
 { $$ = $2; }
 ;
 
-quoted_string_list:
-    T_QUOTED_STRING { $$ = $1; }
-    | quoted_string_list T_QUOTED_STRING { $$ = concat(2, $1, $2); }
+quoted_string:
+    T_QUOTED_CHAR { $$ = $1; }
+    | quoted_string T_QUOTED_CHAR { $$ = concat(2, $1, $2); }
+    | quoted_string T_BOLD { $$ = $1; }
+    | quoted_string T_ITALICIZED { $$ = $1; }
+    | quoted_string T_TITLE_PARAGRAPH { $$ = $1; }
+    | quoted_string T_TEXT_LINK { $$ = $1; }
+    | quoted_string T_IMAGE_LINK { $$ = $1; }
+    | quoted_string T_PARAGRAPH { $$ = $1; }
+    | quoted_string T_BULLET { $$ = $1; }
+    | quoted_string T_ENUMERATION { $$ = $1; }
 ;
 
 title_stmt: T_TITLE '=' literal_string
