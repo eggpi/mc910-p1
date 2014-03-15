@@ -50,4 +50,10 @@ typedef struct {
     structure_t *structure;
 } news_t;
 
+news_t *news_new(void);
+structure_t *structure_new(void);
+text_field_t *text_field_new(void);
+text_chunk_t *text_chunk_new(void);
+text_chunk_t *text_chunk_new_copy_attrs(text_chunk_t *copy);
+text_chunk_t *text_field_get_last_chunk(text_field_t *field);
 void text_field_append_char(text_field_t *field, char c);
