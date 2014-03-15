@@ -1,5 +1,6 @@
 %{
 #include <stdlib.h>
+#include "parse_tree.h"
 #include "parser.h"
 %}
 
@@ -12,13 +13,13 @@ WHITESPACE [ \n\r\t]+
 
 [[:space:]]+        /* ignore */ ;
 "newspaper"         { return T_NEWSPAPER; }
-"title"             { return T_TITLE; }
-"date"              { return T_DATE; }
-"abstract"          { return T_ABSTRACT; }
-"text"              { return T_TEXT; }
-"source"            { return T_SOURCE; }
-"image"             { return T_IMAGE; }
-"author"            { return T_AUTHOR; }
+"title"             { yylval.str = (char *) strdup(yytext); return T_TITLE; }
+"date"              { yylval.str = (char *) strdup(yytext); return T_DATE; }
+"abstract"          { yylval.str = (char *) strdup(yytext); return T_ABSTRACT; }
+"text"              { yylval.str = (char *) strdup(yytext); return T_TEXT; }
+"source"            { yylval.str = (char *) strdup(yytext); return T_SOURCE; }
+"image"             { yylval.str = (char *) strdup(yytext); return T_IMAGE; }
+"author"            { yylval.str = (char *) strdup(yytext); return T_AUTHOR; }
 "structure"         { return T_STRUCTURE; }
 "col"               { return T_COL; }
 "show"              { return T_SHOW; }
@@ -82,11 +83,12 @@ WHITESPACE [ \n\r\t]+
     return T_PARAGRAPH;
 }
 
-<LITERAL_STRING>\* {
+<LITERAL_STRING>\*+ {
+    yylval.num = strlen(yytext);
     return T_BULLET;
 }
 
-<LITERAL_STRING># {
+<LITERAL_STRING>#+ {
     return T_ENUMERATION;
 }
 
