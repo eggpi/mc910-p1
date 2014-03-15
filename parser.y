@@ -199,7 +199,7 @@ structure_stmt: T_STRUCTURE '{'
     col_stmt
     show_stmt
 '}' {
-    $$ = malloc(sizeof(structure_t));
+    $$ = structure_new();
     $$->col = $3;
     $$->show = $4;
 }
