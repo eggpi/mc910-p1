@@ -223,6 +223,7 @@ news_stmt: T_NEWSNAME '{'
     news_attrs_stmt
     news_structure_stmt
 '}' {
+    $$ = $3;
     $$->structure = $4;
     // the other attributes were filled out by news_attrs_stmt
 }
