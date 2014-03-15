@@ -10,6 +10,7 @@ int yyerror(const char* errmsg);
 int yylex(void);
 
 void parse_text_link(text_chunk_t *chunk, const char *link);
+void parse_image_link(text_chunk_t *chunk, const char *link);
 char *text_field_to_string(text_field_t *field);
 char* concat(int count, ...);
 %}
@@ -155,7 +156,11 @@ quoted_string_markup:
         list_rpush($$->chunks, list_node_new(new));
     }
     | quoted_string_markup T_IMAGE_LINK {
-        // TODO
+        text_chunk_t *last_chunk = text_field_get_last_chunk($$);
+        text_chunk_t *new = text_chunk_new_copy_attrs(last_chunk);
+
+        parse_image_link(new, $2);
+        list_rpush($$->chunks, list_node_new(new));
     }
     | quoted_string_markup T_PARAGRAPH {
         text_chunk_t *last_chunk = text_field_get_last_chunk($$);
@@ -312,6 +317,15 @@ void parse_text_link(text_chunk_t *chunk, const char *link) {
         chunk->link = strndup(link + 1, (sep - link - 1));
         chunk->alt_text = strndup(sep + 1, strlen(sep) - 2);
     }
+
+    return;
+}
+
+void parse_image_link(text_chunk_t *chunk, const char *link) {
+    // link has the form [[ image | caption ]]; parse it
+    char *sep = strchr(link, '|');
+    chunk->image = strndup(link + 2, (sep - link - 2));
+    chunk->caption = strndup(sep + 2, strlen(sep) - 4);
 
     return;
 }
