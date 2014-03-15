@@ -44,9 +44,9 @@ typedef struct {
     const char *image;
     text_field_t *abstract;
     text_field_t *text;
-    text_field_t *author;
-    text_field_t *source;
-    text_field_t *date;
+    const char *author;
+    const char *source;
+    const char *date;
     structure_t *structure;
 } news_t;
 
@@ -57,3 +57,4 @@ text_chunk_t *text_chunk_new(void);
 text_chunk_t *text_chunk_new_copy_attrs(text_chunk_t *copy);
 text_chunk_t *text_field_get_last_chunk(text_field_t *field);
 void text_field_append_char(text_field_t *field, char c);
+void text_field_append_str(text_field_t *field, char *c);

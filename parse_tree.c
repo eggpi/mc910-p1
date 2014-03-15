@@ -54,3 +54,10 @@ void text_field_append_char(text_field_t *field, char c) {
 
     last_chunk->chunk[last_chunk->_pos++] = c;
 }
+
+void text_field_append_str(text_field_t *field, char *c) {
+    while (*c) {
+        text_field_append_char(field, *c);
+        c++;
+    }
+}
