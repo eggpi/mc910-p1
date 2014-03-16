@@ -12,7 +12,6 @@ int yylex(void);
 void parse_text_link(text_chunk_t *chunk, const char *link);
 void parse_image_link(text_chunk_t *chunk, const char *link);
 char *text_field_to_string(text_field_t *field);
-char* concat(int count, ...);
 %}
 
 %union{
@@ -346,32 +345,6 @@ char *text_field_to_string(text_field_t *field) {
     }
 
     return text;
-}
-
-char* concat(int count, ...)
-{
-    va_list ap;
-    int len = 1, i;
-
-    va_start(ap, count);
-    for(i=0 ; i<count ; i++)
-        len += strlen(va_arg(ap, char*));
-    va_end(ap);
-
-    char *result = (char*) calloc(sizeof(char),len);
-    int pos = 0;
-
-    // Actually concatenate strings
-    va_start(ap, count);
-    for(i=0 ; i<count ; i++)
-    {
-        char *s = va_arg(ap, char*);
-        strcpy(result+pos, s);
-        pos += strlen(s);
-    }
-    va_end(ap);
-
-    return result;
 }
 
 int yyerror(const char* errmsg)
