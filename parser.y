@@ -395,7 +395,7 @@ int yywrap(void) {
 int main(int argc, char** argv)
 {
     yyparse();
-    if (!verify_newspaper(newspaper)) {
+    if (!newspaper || (!verify_newspaper(newspaper))) {
         return 1;
     }
 
