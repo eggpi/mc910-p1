@@ -1,4 +1,4 @@
-CFLAGS=-g
+CFLAGS=-g -Wall -Wextra
 BISON=bison
 FLEX=flex
 INCLUDE=list/src
@@ -16,10 +16,10 @@ parser.o: parser.c
 	$(CC) $(CFLAGS) -I$(INCLUDE) -c -o parser.o parser.c
 
 scanner.c: scanner.l
-	$(FLEX)  -o scanner.c scanner.l
+	$(FLEX) -o scanner.c scanner.l
 
 scanner.o: scanner.c
-	$(CC) $(CFLAGS) -I$(INCLUDE) -c -o scanner.o scanner.c
+	$(CC) $(CFLAGS) -Wno-unused-function -I$(INCLUDE) -c -o scanner.o scanner.c
 
 parse_tree.o: parse_tree.c
 	$(CC) $(CFLAGS) -I$(INCLUDE) -c -o parse_tree.o parse_tree.c

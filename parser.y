@@ -1,4 +1,6 @@
 %{
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -392,7 +394,7 @@ int yywrap(void) {
     return 1;
 }
 
-int main(int argc, char** argv)
+int main(void)
 {
     yyparse();
     if (!newspaper || (!verify_newspaper(newspaper))) {
