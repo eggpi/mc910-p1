@@ -12,6 +12,9 @@ int yylex(void);
 void parse_text_link(text_chunk_t *chunk, const char *link);
 void parse_image_link(text_chunk_t *chunk, const char *link);
 char *text_field_to_string(text_field_t *field);
+bool validate_newspaper(newspaper_t *newspaper);
+
+static newspaper_t *newspaper;
 %}
 
 %union{
@@ -51,7 +54,6 @@ char *text_field_to_string(text_field_t *field);
 %type <num> col_stmt
 %type <news> news_stmt news_attrs_stmt
 %type <structure> structure_stmt news_structure_stmt
-%type <newspaper> newspaper_stmt
 %type <list> show_stmt news_show_stmt news_name_list news_attr_list news_list
 %type <text> title_stmt abstract_stmt text_stmt quoted_string quoted_string_markup literal_string_markup
 %type <str> image_stmt date_stmt source_stmt author_stmt literal_string
@@ -67,7 +69,13 @@ newspaper_stmt: T_NEWSPAPER '{'
     date_stmt
     structure_stmt
     news_list
-'}'
+'}' {
+    newspaper = newspaper_new();
+    newspaper->title = $3;
+    newspaper->date = $4;
+    newspaper->structure = $5;
+    newspaper->news = $6;
+}
 ;
 
 literal_string_markup: '"' quoted_string_markup '"' {
@@ -347,6 +355,33 @@ char *text_field_to_string(text_field_t *field) {
     return text;
 }
 
+bool verify_newspaper(newspaper_t *newspaper) {
+    // The grammar doesn't check for the presence of all
+    // mandatory attributes in each news entry, so do it here.
+
+    int index = 0;
+    list_node_t *node = NULL;
+    list_iterator_t *it = list_iterator_new(newspaper->news, LIST_HEAD);
+    while ((node = list_iterator_next(it))) {
+        news_t *news = node->val;
+        // news->structure is enforced by the grammar
+        if (!news->title || !news->abstract || !news->author) {
+            char *errmsg = NULL;
+            asprintf(&errmsg,
+                "%d-th news is missing a mandatory attribute.",
+                index);
+
+            yyerror(errmsg);
+            free(errmsg);
+            return false;
+        }
+
+        index++;
+    }
+
+    return true;
+}
+
 int yyerror(const char* errmsg)
 {
     fprintf(stderr, "\nError: %s\n", errmsg);
@@ -360,5 +395,9 @@ int yywrap(void) {
 int main(int argc, char** argv)
 {
     yyparse();
+    if (!verify_newspaper(newspaper)) {
+        return 1;
+    }
+
     return 0;
 }

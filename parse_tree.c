@@ -12,6 +12,10 @@ text_chunk_t *text_chunk_new(void) {
     return calloc(1, sizeof(text_chunk_t));
 }
 
+newspaper_t *newspaper_new(void) {
+    return calloc(1, sizeof(newspaper_t));
+}
+
 news_t *news_new(void) {
     return calloc(1, sizeof(news_t));
 }

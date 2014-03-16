@@ -33,7 +33,7 @@ typedef struct {
 
 typedef struct {
     text_field_t *title;
-    text_field_t *date;
+    const char *date;
     structure_t *structure;
     list_t *news;
 } newspaper_t;
@@ -50,6 +50,7 @@ typedef struct {
     structure_t *structure;
 } news_t;
 
+newspaper_t *newspaper_new(void);
 news_t *news_new(void);
 structure_t *structure_new(void);
 text_field_t *text_field_new(void);
