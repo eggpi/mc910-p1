@@ -215,7 +215,7 @@ structure_stmt: T_STRUCTURE '{'
 ;
 
 col_stmt: T_COL '=' T_NUM {
-    $$ = yyval.num;
+    $$ = yylval.num;
 }
 ;
 
@@ -233,6 +233,7 @@ news_stmt: T_NEWSNAME '{'
     news_structure_stmt
 '}' {
     $$ = $3;
+    $$->name = $1;
     $$->structure = $4;
     // the other attributes were filled out by news_attrs_stmt
 }
@@ -397,9 +398,18 @@ int yywrap(void) {
 int main(void)
 {
     yyparse();
+
     if (!newspaper || (!verify_newspaper(newspaper))) {
         return 1;
     }
+ 
+/*  some tests
+    printf("%s\n", ((text_chunk_t *)list_at(newspaper->title->chunks,
+                    0)->val)->chunk);
+    printf("%d\n", newspaper->structure->col);
+    printf("%s\n", (char *)list_at(newspaper->structure->show, 2)->val);
+    printf("%s\n", ((news_t *)list_at(newspaper->news, 2)->val)->name);
+*/
 
     return 0;
 }
