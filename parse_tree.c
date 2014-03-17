@@ -65,3 +65,33 @@ void text_field_append_str(text_field_t *field, char *c) {
         c++;
     }
 }
+
+/* Get the text chunk from field at position */
+text_chunk_t *text_field_get_chunk_at(text_field_t *field, int position) {
+    if(field) {
+        return (text_chunk_t *)list_at(field->chunks, position)->val;
+    }
+    else {
+        return NULL;
+    }
+}
+
+/* Get the number of columns of a structure */
+unsigned int structure_get_col(structure_t *structure) {
+    if(structure) {
+        return structure->col;
+    }
+    else {
+        return 0;
+    }
+}
+
+/* Get the order of the objects to be shown */
+char *structure_get_show(structure_t *structure, int position) {
+    if(structure) {
+        return (char *)list_at(structure->show, position)->val;
+    }
+    else {
+        return NULL;
+    }
+}

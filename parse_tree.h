@@ -59,3 +59,6 @@ text_chunk_t *text_chunk_new_copy_attrs(text_chunk_t *copy);
 text_chunk_t *text_field_get_last_chunk(text_field_t *field);
 void text_field_append_char(text_field_t *field, char c);
 void text_field_append_str(text_field_t *field, char *c);
+text_chunk_t *text_field_get_chunk_at(text_field_t *field, int position);
+unsigned int structure_get_col(structure_t *structure);
+char *structure_get_show(structure_t *structure, int position);
