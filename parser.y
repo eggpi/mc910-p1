@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "parse_tree.h"
 #include "generate_code.h"
@@ -12,6 +13,7 @@
 int yyerror(const char* errmsg);
 int yylex(void);
 
+char *string_to_lower(char *str);
 void parse_text_link(text_chunk_t *chunk, const char *link);
 void parse_image_link(text_chunk_t *chunk, const char *link);
 char *text_field_to_string(text_field_t *field);
@@ -225,8 +227,10 @@ show_stmt: T_SHOW '=' news_name_list {
 }
 ;
 
-news_name_list: T_NEWSNAME { $$ = list_new(); list_rpush($$, list_node_new($1)); }
-    | news_name_list ',' T_NEWSNAME { list_rpush($$, list_node_new($3)); }
+news_name_list: T_NEWSNAME { $$ = list_new(); list_rpush($$,
+                        list_node_new(string_to_lower($1))); }
+    | news_name_list ',' T_NEWSNAME { list_rpush($$,
+            list_node_new(string_to_lower($3))); }
 ;
 
 news_stmt: T_NEWSNAME '{'
@@ -234,7 +238,7 @@ news_stmt: T_NEWSNAME '{'
     news_structure_stmt
 '}' {
     $$ = $3;
-    $$->name = $1;
+    $$->name = string_to_lower($1);
     $$->structure = $4;
     // the other attributes were filled out by news_attrs_stmt
 }
@@ -318,6 +322,16 @@ news_attr_list:
 ;
 
 %%
+
+/* Convert a string to lowercase */
+char *string_to_lower(char *str) {
+    int i;
+    for(i = 0; str[i]; i++) {
+        str[i] = tolower(str[i]);
+    }
+
+    return str;
+}
 
 void parse_text_link(text_chunk_t *chunk, const char *link) {
     // link has the form [ url | text ]; parse it

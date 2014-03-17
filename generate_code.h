@@ -25,13 +25,14 @@ content=\"text/html; charset=UTF-8\">"
 #define TABLE_C "</table>"
 #define TR "<tr>"
 #define TR_C "</tr>"
-#define TD "<td>"
+#define TD "<td"
 #define TD_C "</td>"
 
 
 void html_generate(newspaper_t *newspaper);
 FILE *html_new(char *page_title);
 void html_header(FILE *PG, char *page_header);
+void html_news(FILE *PG, newspaper_t *newspaper);
 void html_close(FILE *PG);
 
 #endif /* __GENERATE_CODE_H__ */
