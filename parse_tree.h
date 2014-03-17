@@ -1,3 +1,7 @@
+/* parse_tree.h */
+#ifndef __PARSE_TREE_H__
+#define __PARSE_TREE_H__
+
 #include <stdbool.h>
 
 #include "list.h"
@@ -62,3 +66,5 @@ void text_field_append_str(text_field_t *field, char *c);
 text_chunk_t *text_field_get_chunk_at(text_field_t *field, int position);
 unsigned int structure_get_col(structure_t *structure);
 char *structure_get_show(structure_t *structure, int position);
+
+#endif /* __PARSE_TREE_H__ */

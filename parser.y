@@ -410,13 +410,12 @@ int main(void)
     printf("%d\n", newspaper->structure->col);
     printf("%s\n", (char *)list_at(newspaper->structure->show, 2)->val);
     printf("%s\n", ((news_t *)list_at(newspaper->news, 2)->val)->name);
+
+printf("%d\n", structure_get_col(newspaper->structure));
+printf("%d\n", 
+        structure_get_col(((news_t *)list_at(newspaper->news,0)->val)->structure));
 */
-
-    FILE *P = NULL;
-    P = html_new(text_field_get_chunk_at(newspaper->title, 0)->chunk);
-    html_header(P, text_field_get_chunk_at(newspaper->title, 0)->chunk);
-
-    html_close(P);
+    html_generate(newspaper);
 
     return 0;
 }
