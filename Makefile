@@ -6,8 +6,9 @@ LIB=list/build
 
 .PHONY: list clean
 
-parser: parser.o scanner.o parse_tree.o list
-	$(CC) -L$(LIB) -o parser scanner.o parser.o parse_tree.o -llist
+parser: parser.o scanner.o parse_tree.o generate_code.o list
+	$(CC) -L$(LIB) -o parser scanner.o parser.o parse_tree.o generate_code.o \
+		-llist
 
 parser.c: parser.y
 	$(BISON) -d parser.y  -o parser.c
@@ -24,9 +25,12 @@ scanner.o: scanner.c
 parse_tree.o: parse_tree.c
 	$(CC) $(CFLAGS) -I$(INCLUDE) -c -o parse_tree.o parse_tree.c
 
+generate_code.o: generate_code.c
+	$(CC) $(CFLAGS) -I$(INCLUDE) -c -o generate_code.o generate_code.c
+
 list: list/src/list.c
 	cd list; $(MAKE)
 
 clean:
-	rm -f scanner.c scanner.o parser.c parser.o parser.h parse_tree.o parser; \
-cd list; $(MAKE) clean
+	rm -f scanner.c scanner.o parser.c parser.o parser.h parse_tree.o parser \
+generate_code.o; cd list; $(MAKE) clean

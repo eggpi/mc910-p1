@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "parse_tree.h"
+#include "generate_code.h"
 
 int yyerror(const char* errmsg);
 int yylex(void);
@@ -410,6 +411,12 @@ int main(void)
     printf("%s\n", (char *)list_at(newspaper->structure->show, 2)->val);
     printf("%s\n", ((news_t *)list_at(newspaper->news, 2)->val)->name);
 */
+
+    FILE *P = NULL;
+    P = html_new(text_field_get_chunk_at(newspaper->title, 0)->chunk);
+    html_header(P, text_field_get_chunk_at(newspaper->title, 0)->chunk);
+
+    html_close(P);
 
     return 0;
 }
