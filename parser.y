@@ -136,7 +136,7 @@ quoted_string_markup:
         text_chunk_t *last_chunk = text_field_get_last_chunk($$);
         text_chunk_t *new = text_chunk_new_copy_attrs(last_chunk);
 
-        new->italics = !last_chunk->bold;
+        new->italics = !last_chunk->italics;
         list_rpush($$->chunks, list_node_new(new));
     }
     | T_TITLE_PARAGRAPH {
