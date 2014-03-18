@@ -74,7 +74,7 @@ void emit_news(FILE *PG, news_t *news) {
         fprintf(PG, "%s%s%s%s\n", IMGSRC, news->image, IMGSRC_C, IMG_C);
     }
 
-    if (news->text) emit_markup_text(PG, news->text);
+    emit_markup_text(PG, news->abstract);
     fprintf(PG, "%s%s%s\n", P, news->author, P_C);
 }
 
@@ -138,9 +138,14 @@ bool need_open_list_item(text_chunk_t *previous, text_chunk_t *next) {
 }
 
 void emit_markup_text(FILE *PG, text_field_t *text) {
-    list_node_t *n;
-    list_iterator_t *it = list_iterator_new(text->chunks, LIST_HEAD);
+    list_node_t *n = NULL;
     text_chunk_t *previous = NULL;
+
+    // create a sentinel chunk with no attributes
+    // to make sure all tags are closed
+    list_rpush(text->chunks, list_node_new(text_chunk_new()));
+
+    list_iterator_t *it = list_iterator_new(text->chunks, LIST_HEAD);
 
     fprintf(PG, "%s\n", P);
     while ((n = list_iterator_next(it))) {
@@ -204,6 +209,7 @@ void emit_markup_text(FILE *PG, text_field_t *text) {
 
     fprintf(PG, "%s\n", P);
 
+    free(list_rpop(text->chunks));
     list_iterator_destroy(it);
     return;
 }
