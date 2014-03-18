@@ -179,6 +179,7 @@ quoted_string_markup:
         text_chunk_t *new = text_chunk_new_copy_attrs(last_chunk);
 
         new->indentation = $2;
+        new->bullet_level = new->enumeration_level = 0;
         list_rpush($$->chunks, list_node_new(new));
     }
     | quoted_string_markup T_BULLET {
@@ -186,6 +187,7 @@ quoted_string_markup:
         text_chunk_t *new = text_chunk_new_copy_attrs(last_chunk);
 
         new->bullet_level = $2;
+        new->enumeration_level = 0;
         list_rpush($$->chunks, list_node_new(new));
     }
     | quoted_string_markup T_ENUMERATION {
@@ -193,6 +195,7 @@ quoted_string_markup:
         text_chunk_t *new = text_chunk_new_copy_attrs(last_chunk);
 
         new->enumeration_level = $2;
+        new->bullet_level = 0;
         list_rpush($$->chunks, list_node_new(new));
     }
 ;
