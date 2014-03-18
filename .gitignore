@@ -1,2 +1,7 @@
+*.o
+parser.c
+parser.h
+scanner.c
+list/build/
 npltohtml
 sempre_online.html
