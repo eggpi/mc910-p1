@@ -2,26 +2,68 @@
 
 #include <string.h>
 
+typedef void (free_func_t)(void *);
+
 text_field_t *text_field_new(void) {
     text_field_t *field = malloc(sizeof(text_field_t));
     field->chunks = list_new();
+    field->chunks->free = (free_func_t *) text_chunk_free;
     return field;
+}
+
+void text_field_free(text_field_t *text) {
+    list_destroy(text->chunks);
+    free(text);
 }
 
 text_chunk_t *text_chunk_new(void) {
     return calloc(1, sizeof(text_chunk_t));
 }
 
+void text_chunk_free(text_chunk_t *text) {
+    free(text->link);
+    free(text->alt_text);
+    free(text->image);
+    free(text->caption);
+    free(text);
+}
+
 newspaper_t *newspaper_new(void) {
     return calloc(1, sizeof(newspaper_t));
+}
+
+void newspaper_free(newspaper_t *newspaper) {
+    text_field_free(newspaper->title);
+    free(newspaper->date);
+    structure_free(newspaper->structure);
+    list_destroy(newspaper->news);
+    free(newspaper);
 }
 
 news_t *news_new(void) {
     return calloc(1, sizeof(news_t));
 }
 
+void news_free(news_t *news) {
+    text_field_free(news->title);
+    text_field_free(news->abstract);
+    structure_free(news->structure);
+    free(news->author);
+    free(news->name);
+    if (news->text) text_field_free(news->text);
+    if (news->image) free(news->image);
+    if (news->source) free(news->source);
+    if (news->date) free(news->date);
+    free(news);
+}
+
 structure_t *structure_new(void) {
     return calloc(1, sizeof(structure_t));
+}
+
+void structure_free(structure_t *structure) {
+    list_destroy(structure->show);
+    free(structure);
 }
 
 text_chunk_t *text_chunk_new_copy_attrs(text_chunk_t *copy) {

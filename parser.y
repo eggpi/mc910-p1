@@ -230,13 +230,17 @@ col_stmt: T_COL '=' T_NUM {
 
 show_stmt: T_SHOW '=' news_name_list {
     $$ = $3;
+    $$->free = free;
 }
 ;
 
-news_name_list: T_NEWSNAME { $$ = list_new(); list_rpush($$,
-                        list_node_new(string_to_lower($1))); }
-    | news_name_list ',' T_NEWSNAME { list_rpush($$,
-            list_node_new(string_to_lower($3))); }
+news_name_list: T_NEWSNAME {
+        $$ = list_new();
+        list_rpush($$, list_node_new(string_to_lower($1)));
+    }
+    | news_name_list ',' T_NEWSNAME {
+        list_rpush($$, list_node_new(string_to_lower($3)));
+    }
 ;
 
 news_stmt: T_NEWSNAME '{'
@@ -250,8 +254,14 @@ news_stmt: T_NEWSNAME '{'
 }
 ;
 
-news_list: news_stmt { $$ = list_new(); list_rpush($$, list_node_new($1)); }
-    | news_list news_stmt { list_rpush($$, list_node_new($2)); }
+news_list: news_stmt {
+        $$ = list_new();
+        $$->free = (void (*) (void *)) news_free;
+        list_rpush($$, list_node_new($1));
+    }
+    | news_list news_stmt {
+        list_rpush($$, list_node_new($2));
+    }
 ;
 
 news_attrs_stmt:
@@ -307,6 +317,7 @@ news_structure_stmt: T_STRUCTURE '{'
 
 news_show_stmt: T_SHOW '=' news_attr_list {
     $$ = $3;
+    $$->free = free;
 }
 ;
 
@@ -376,6 +387,7 @@ char *text_field_to_string(text_field_t *field) {
         start += chunk->_pos;
     }
 
+    list_iterator_destroy(it);
     return text;
 }
 
@@ -403,6 +415,7 @@ bool verify_newspaper(newspaper_t *newspaper) {
         index++;
     }
 
+    list_iterator_destroy(it);
     return true;
 }
 
@@ -436,6 +449,7 @@ printf("%d\n",
         structure_get_col(((news_t *)list_at(newspaper->news,0)->val)->structure));
 */
     html_generate(newspaper);
+    newspaper_free(newspaper);
 
     return 0;
 }

@@ -209,7 +209,7 @@ void emit_markup_text(FILE *PG, text_field_t *text) {
 
     fprintf(PG, "%s\n", P);
 
-    free(list_rpop(text->chunks));
+    list_remove(text->chunks, text->chunks->tail);
     list_iterator_destroy(it);
     return;
 }
