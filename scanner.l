@@ -58,7 +58,7 @@ WHITESPACE [ \n\r\t]+
 }
 
 <LITERAL_STRING>\\\" {
-    yylval.str = (char *) strdup(yytext);
+    yylval.str = (char *) strdup("\"");
     return T_QUOTED_STR;
 }
 

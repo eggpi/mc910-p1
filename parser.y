@@ -343,7 +343,7 @@ void parse_text_link(text_chunk_t *chunk, const char *link) {
     // link has the form [ url | text ]; parse it
     char *sep = strchr(link, '|');
     if (sep == NULL) {
-        chunk->link = strndup(link, strlen(link) - 1);
+        chunk->link = strndup(link + 1, strlen(link) - 2);
         chunk->alt_text = strdup(chunk->link);
     } else {
         chunk->link = strndup(link + 1, (sep - link - 1));

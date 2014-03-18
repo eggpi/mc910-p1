@@ -1,6 +1,9 @@
 #include "generate_code.h"
 #include <string.h>
 
+static void emit_markup_text(FILE *PG, text_field_t *text);
+static void emit_news(FILE *PG, news_t *news);
+
 /* WIP */
 void html_generate(newspaper_t *newspaper) {
     FILE *PG = NULL;
@@ -33,32 +36,176 @@ void html_news(FILE *PG, newspaper_t *newspaper) {
     unsigned int remaining_col = newspaper_col;
     unsigned int news_col;
     list_node_t *node = NULL;
-    list_node_t *node_news = NULL;
-    list_iterator_t *it = NULL, *it2 = NULL;
-
+    list_iterator_t *it = NULL;
 
     fprintf(PG, "%s\n%s\n", TABLE, TR);
     it = list_iterator_new(newspaper->structure->show, LIST_HEAD);
     while((node = list_iterator_next(it))) {
-        it2 = list_iterator_new(newspaper->news, LIST_HEAD);
-        while((node_news = list_iterator_next(it2))) {
-            if(!strcmp(node->val, ((news_t *)node_news->val)->name)) {
-                news_col =
-                    structure_get_col(((news_t *)node_news->val)->structure);
-                if(remaining_col == 0) {
-                    fprintf(PG, "%s\n%s\n", TR_C, TR);
-                    remaining_col = newspaper_col;
-                }
-                fprintf(PG, "%s colspan=%d align=center>%s%s\n", TD, news_col,
-                        (char *)node->val, TD_C);
-
-                remaining_col -= news_col;
-            }
+        const char *name = node->val;
+        news_t *news = newspaper_find_news(newspaper, name);
+        if (!news) {
+            fprintf(stderr, "referenced news %s doesn't exist!\n", name);
+            return;
         }
+
+        news_col = structure_get_col(news->structure);
+        if(remaining_col == 0) {
+            fprintf(PG, "%s\n%s\n", TR_C, TR);
+            remaining_col = newspaper_col;
+        }
+
+        fprintf(PG, "%s colspan=%d align=center>\n", TD, news_col);
+        emit_news(PG, news);
+        fprintf(PG, "%s\n", TD_C);
+
+        remaining_col -= news_col;
     }
+
     fprintf(PG, "%s\n%s\n", TR_C, TABLE_C);
     list_iterator_destroy(it);
-    list_iterator_destroy(it2);
+}
+
+void emit_news(FILE *PG, news_t *news) {
+    fprintf(PG, "%s\n", H2);
+    emit_markup_text(PG, news->title);
+    fprintf(PG, "%s\n", H2_C);
+
+    if (news->image) {
+        fprintf(PG, "%s%s%s%s\n", IMGSRC, news->image, IMGSRC_C, IMG_C);
+    }
+
+    if (news->text) emit_markup_text(PG, news->text);
+    fprintf(PG, "%s%s%s\n", P, news->author, P_C);
+}
+
+#define GEN_NEED_OPEN_ATTRIBUTE(attr)                                   \
+    bool need_open_##attr(text_chunk_t *previous, text_chunk_t *next) { \
+        if (previous) {                                                 \
+            return previous->attr == false && next->attr == true;       \
+        }                                                               \
+                                                                        \
+        return next->attr;                                              \
+    }                                                                   \
+
+#define GEN_NEED_CLOSE_ATTRIBUTE(attr)                                   \
+    bool need_close_##attr(text_chunk_t *previous, text_chunk_t *next) { \
+        if (previous) {                                                  \
+            return previous->attr == true && next->attr == false;        \
+        }                                                                \
+                                                                         \
+        return false;                                                    \
+    }                                                                    \
+
+GEN_NEED_OPEN_ATTRIBUTE(bold)
+GEN_NEED_CLOSE_ATTRIBUTE(bold)
+
+GEN_NEED_OPEN_ATTRIBUTE(italics)
+GEN_NEED_CLOSE_ATTRIBUTE(italics)
+
+GEN_NEED_OPEN_ATTRIBUTE(paragraph)
+GEN_NEED_CLOSE_ATTRIBUTE(paragraph)
+
+bool need_indentation(text_chunk_t *previous, text_chunk_t *next) {
+    if (previous) {
+        return previous->indentation != next->indentation;
+    }
+
+    return !!next->indentation;
+}
+
+#define GEN_COMPUTE_LEVEL_VARIATION(type)                                        \
+    int compute_##type##_variation(text_chunk_t *previous, text_chunk_t *next) { \
+        if (previous) {                                                          \
+            return next->type##_level - previous->type##_level;                  \
+        }                                                                        \
+                                                                                 \
+        return next->type##_level;                                               \
+    }
+
+GEN_COMPUTE_LEVEL_VARIATION(bullet)
+GEN_COMPUTE_LEVEL_VARIATION(enumeration)
+
+bool need_open_list_item(text_chunk_t *previous, text_chunk_t *next) {
+    if (next->bullet_level == 0 && next->enumeration_level == 0) {
+        return false;
+    }
+
+    if (previous) {
+        return previous->item_counter != next->item_counter;
+    }
+
+    return true;
+}
+
+void emit_markup_text(FILE *PG, text_field_t *text) {
+    list_node_t *n;
+    list_iterator_t *it = list_iterator_new(text->chunks, LIST_HEAD);
+    text_chunk_t *previous = NULL;
+
+    fprintf(PG, "%s\n", P);
+    while ((n = list_iterator_next(it))) {
+        text_chunk_t *chunk = n->val;
+
+        if (need_close_bold(previous, chunk)) fprintf(PG, "%s", B_C);
+        if (need_close_italics(previous, chunk)) fprintf(PG, "%s", I_C);
+        if (need_close_paragraph(previous, chunk)) fprintf(PG, "%s", H3_C);
+
+        // adjust the level for bullet lists or enumeration lists
+        int bullet_diff = compute_bullet_variation(previous, chunk);
+        if (bullet_diff > 0) {
+            while (bullet_diff--) fprintf(PG, "%s\n", UL);
+        } else if (bullet_diff < 0) {
+            fprintf(PG, "%s\n", LI_C);
+            while (bullet_diff++) {
+                fprintf(PG, "%s\n", UL_C);
+            }
+        }
+
+        int enumeration_diff = compute_enumeration_variation(previous, chunk);
+        if (enumeration_diff > 0) {
+            while (enumeration_diff--) fprintf(PG, "%s\n", OL);
+        } else if (enumeration_diff < 0) {
+            fprintf(PG, "%s\n", LI_C);
+            while (enumeration_diff++) {
+                fprintf(PG, "%s\n", OL_C);
+            }
+        }
+
+        if (need_open_list_item(previous, chunk)) {
+            fprintf(PG, "%s\n", LI);
+        }
+
+        if (need_open_bold(previous, chunk)) fprintf(PG, "%s", B);
+        if (need_open_italics(previous, chunk)) fprintf(PG, "%s", I);
+        if (need_open_paragraph(previous, chunk)) fprintf(PG, "%s", H3);
+
+        if (need_indentation(previous, chunk)) {
+            if (previous != NULL) fprintf(PG, "%s\n", P_C);
+            fprintf(PG, "%s\n", P);
+
+            unsigned int indentation = chunk->indentation;
+            while (indentation--) fprintf(PG, PARAGRAPH_INDENTATION);
+        }
+
+        // text and image links create their own chunks, so emit them before
+        // the actual text
+        if (chunk->link && chunk->alt_text) {
+            fprintf(PG, "%s%s%s%s%s", AHREF, chunk->link, AHREF_C,
+                    chunk->alt_text, A_C);
+        } else if (chunk->image && chunk->caption) {
+            fprintf(PG, "%s%s %s\"%s\"%s%s", IMGSRC, chunk->image, ALT,
+                    chunk->caption, IMGSRC_C, IMG_C);
+        }
+
+        fprintf(PG, "%s", chunk->chunk);
+
+        previous = chunk;
+    }
+
+    fprintf(PG, "%s\n", P);
+
+    list_iterator_destroy(it);
+    return;
 }
 
 /* Close the HTML file */

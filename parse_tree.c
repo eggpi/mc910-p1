@@ -30,6 +30,8 @@ text_chunk_t *text_chunk_new_copy_attrs(text_chunk_t *copy) {
     if (copy) {
         memcpy(new_chunk, copy, sizeof(text_chunk_t));
         new_chunk->_pos = 0;
+        new_chunk->link = new_chunk->alt_text = NULL;
+        new_chunk->image = new_chunk->caption = NULL;
         memset(new_chunk->chunk, '\0', TEXT_CHUNK_SIZE);
     }
 
@@ -94,4 +96,18 @@ char *structure_get_show(structure_t *structure, int position) {
     else {
         return NULL;
     }
+}
+
+news_t *newspaper_find_news(newspaper_t *newspaper, const char *name) {
+    list_node_t *n = NULL;
+    list_iterator_t *it = list_iterator_new(newspaper->news, LIST_HEAD);
+    while ((n = list_iterator_next(it))) {
+        news_t *news = n->val;
+        if (!strcmp(news->name, name)) {
+            return news;
+        }
+    }
+
+    list_iterator_destroy(it);
+    return NULL;
 }

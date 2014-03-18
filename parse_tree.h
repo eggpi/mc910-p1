@@ -15,6 +15,7 @@ typedef struct {
     unsigned int indentation;
     unsigned int bullet_level;
     unsigned int enumeration_level;
+    unsigned int item_counter;
 
     const char *link;
     const char *alt_text;
@@ -66,5 +67,6 @@ void text_field_append_str(text_field_t *field, char *c);
 text_chunk_t *text_field_get_chunk_at(text_field_t *field, int position);
 unsigned int structure_get_col(structure_t *structure);
 char *structure_get_show(structure_t *structure, int position);
+news_t *newspaper_find_news(newspaper_t *newspaper, const char *name);
 
 #endif /* __PARSE_TREE_H__ */
