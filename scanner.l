@@ -46,7 +46,7 @@ WHITESPACE [ \n\r\t]+
     return T_NUM;
 }
 
-<LITERAL_STRING>[^\\":*#] {
+<LITERAL_STRING>[^\\"] {
     yylval.str = (char *) strdup(yytext);
     return T_QUOTED_STR;
 }
@@ -84,9 +84,9 @@ WHITESPACE [ \n\r\t]+
     return expect_markup ? T_IMAGE_LINK : T_QUOTED_STR;
 }
 
-<LITERAL_STRING>:+ {
+<LITERAL_STRING>^[[:space:]]*:+ {
     if (expect_markup) {
-        yylval.num = strlen(yytext);
+        yylval.num = strlen(strchr(yytext, ':'));
         return T_PARAGRAPH;
     } else {
         yylval.str = (char *) strdup(yytext);
@@ -94,9 +94,9 @@ WHITESPACE [ \n\r\t]+
     }
 }
 
-<LITERAL_STRING>\*+ {
+<LITERAL_STRING>^[[:space:]]*\*+ {
     if (expect_markup) {
-        yylval.num = strlen(yytext);
+        yylval.num = strlen(strchr(yytext, '*'));
         return T_BULLET;
     } else {
         yylval.str = (char *) strdup(yytext);
@@ -104,9 +104,9 @@ WHITESPACE [ \n\r\t]+
     }
 }
 
-<LITERAL_STRING>#+ {
+<LITERAL_STRING>^[[:space:]]*#+ {
     if (expect_markup) {
-        yylval.num = strlen(yytext);
+        yylval.num = strlen(strchr(yytext, '#'));
         return T_ENUMERATION;
     } else {
         yylval.str = (char *) strdup(yytext);
