@@ -6,8 +6,8 @@ LIB=list/build
 
 .PHONY: list clean
 
-parser: parser.o scanner.o parse_tree.o generate_code.o list
-	$(CC) -L$(LIB) -o parser scanner.o parser.o parse_tree.o generate_code.o \
+npltohtml: parser.o scanner.o parse_tree.o generate_code.o list
+	$(CC) -L$(LIB) -o $@ scanner.o parser.o parse_tree.o generate_code.o \
 		-llist
 
 parser.c: parser.y
@@ -32,5 +32,5 @@ list: list/src/list.c
 	cd list; $(MAKE)
 
 clean:
-	rm -f scanner.c scanner.o parser.c parser.o parser.h parse_tree.o parser \
+	rm -f scanner.c scanner.o parser.c parser.o parser.h parse_tree.o npltohtml \
 generate_code.o; cd list; $(MAKE) clean
