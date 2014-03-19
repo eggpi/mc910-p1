@@ -90,7 +90,7 @@ void emit_news(FILE *PG, news_t *news) {
             fprintf(PG, "%s%s%sAutor:%s %s%s%s\n",
                     BR, P, B, B_C, news->author, P_C, BR);
         } else if (!strcmp(attr, "source")) {
-            fprintf(PG, "%s%s%s\n", P, news->source, P_C);
+            fprintf(PG, "%s%sFonte:%s %s%s\n", P, B, B_C, news->source, P_C);
         } else if (!strcmp(attr, "date")) {
             fprintf(PG, "%s%s%s\n", P, news->date, P_C);
         } else {
