@@ -70,18 +70,33 @@ void html_news(FILE *PG, newspaper_t *newspaper) {
 }
 
 void emit_news(FILE *PG, news_t *news) {
-    fprintf(PG, "%s", H2);
-    emit_news_title(PG, news);
-    fprintf(PG, "%s\n", H2_C);
+    list_node_t *n = NULL;
+    list_iterator_t *it = list_iterator_new(news->structure->show, LIST_HEAD);
 
-    if (news->image) {
-        fprintf(PG, "%s id=\"figura\"%s%s%s%s\" class=\"escala\"%s%s%s%s\n",
-                DIV, TAG_C, P, IMGSRC, news->image, TAG_C, IMG_C, P_C, DIV_C);
+    while ((n = list_iterator_next(it))) {
+        const char *attr = n->val;
+
+        if (!strcmp(attr, "title")) {
+            fprintf(PG, "%s", H2);
+            emit_news_title(PG, news);
+            fprintf(PG, "%s\n", H2_C);
+        } else if (!strcmp(attr, "image") && news->image) {
+            fprintf(PG, "%s id=\"figura\"%s%s%s%s\" class=\"escala\"%s%s%s%s\n",
+                    DIV, TAG_C, P, IMGSRC, news->image, TAG_C, IMG_C, P_C,
+                    DIV_C);
+        } else if (!strcmp(attr, "abstract")) {
+            emit_markup_text(PG, news->abstract, true);
+        } else if (!strcmp(attr, "author")) {
+            fprintf(PG, "%s%s%sAutor:%s %s%s%s\n",
+                    BR, P, B, B_C, news->author, P_C, BR);
+        } else if (!strcmp(attr, "source")) {
+            fprintf(PG, "%s%s%s\n", P, news->source, P_C);
+        } else if (!strcmp(attr, "date")) {
+            fprintf(PG, "%s%s%s\n", P, news->date, P_C);
+        } else {
+            fprintf(stderr, "Unknown news attribute '%s'\n", attr);
+        }
     }
-
-    emit_markup_text(PG, news->abstract, true);
-    fprintf(PG, "%s%s%sAutor:%s %s%s%s\n",
-            BR, P, B, B_C, news->author, P_C, BR);
 }
 
 #define GEN_NEED_OPEN_ATTRIBUTE(attr)                                   \
