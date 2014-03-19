@@ -1,7 +1,7 @@
 #include "generate_code.h"
 #include <string.h>
 
-static void emit_markup_text(FILE *PG, text_field_t *text);
+static void emit_markup_text(FILE *PG, text_field_t *text, bool paragraph);
 static void emit_news(FILE *PG, news_t *news);
 
 /* WIP */
@@ -55,7 +55,8 @@ void html_news(FILE *PG, newspaper_t *newspaper) {
             remaining_col = newspaper_col;
         }
 
-        fprintf(PG, "%s width=\"%d%%\" colspan=\"%d\" align=\"justify\"%s\n",
+        fprintf(PG, "%s width=\"%d%%\" colspan=\"%d\" align=\"justify\" \
+                valign=\"top\"%s\n",
                 TD, (int)(news_col * 100 / newspaper_col), news_col, TAG_C);
         emit_news(PG, news);
         fprintf(PG, "%s\n", TD_C);
@@ -68,15 +69,15 @@ void html_news(FILE *PG, newspaper_t *newspaper) {
 }
 
 void emit_news(FILE *PG, news_t *news) {
-    fprintf(PG, "%s\n", H2);
-    emit_markup_text(PG, news->title);
+    fprintf(PG, "%s", H2);
+    emit_markup_text(PG, news->title, false);
     fprintf(PG, "%s\n", H2_C);
 
     if (news->image) {
         fprintf(PG, "%s%s\"%s%s\n", IMGSRC, news->image, TAG_C, IMG_C);
     }
 
-    emit_markup_text(PG, news->abstract);
+    emit_markup_text(PG, news->abstract, true);
     fprintf(PG, "%s%s%s\n", P, news->author, P_C);
 }
 
@@ -139,7 +140,7 @@ bool need_open_list_item(text_chunk_t *previous, text_chunk_t *next) {
     return true;
 }
 
-void emit_markup_text(FILE *PG, text_field_t *text) {
+void emit_markup_text(FILE *PG, text_field_t *text, bool paragraph) {
     list_node_t *n = NULL;
     text_chunk_t *previous = NULL;
 
@@ -149,7 +150,9 @@ void emit_markup_text(FILE *PG, text_field_t *text) {
 
     list_iterator_t *it = list_iterator_new(text->chunks, LIST_HEAD);
 
-    fprintf(PG, "%s\n", P);
+    if(paragraph) {
+        fprintf(PG, "%s\n", P);
+    }
     while ((n = list_iterator_next(it))) {
         text_chunk_t *chunk = n->val;
 
@@ -209,7 +212,9 @@ void emit_markup_text(FILE *PG, text_field_t *text) {
         previous = chunk;
     }
 
-    fprintf(PG, "%s\n", P);
+    if(paragraph) {
+        fprintf(PG, "%s\n", P_C);
+    }
 
     list_remove(text->chunks, text->chunks->tail);
     list_iterator_destroy(it);
