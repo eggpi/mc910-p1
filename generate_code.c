@@ -168,6 +168,18 @@ void emit_news_title(FILE *PG, news_t *news) {
     }
 }
 
+void adjust_list_level(FILE *PG, const char *open_tag, const char *close_tag,
+                       int ldiff) {
+    if (ldiff > 0) {
+        while (ldiff--) fprintf(PG, "%s\n", open_tag);
+    } else if (ldiff < 0) {
+        fprintf(PG, "%s\n", LI_C);
+        while (ldiff++) {
+            fprintf(PG, "%s\n", close_tag);
+        }
+    }
+}
+
 void emit_markup_text(FILE *PG, text_field_t *text, bool paragraph) {
     list_node_t *n = NULL;
     text_chunk_t *previous = NULL;
@@ -190,24 +202,10 @@ void emit_markup_text(FILE *PG, text_field_t *text, bool paragraph) {
 
         // adjust the level for bullet lists or enumeration lists
         int bullet_diff = compute_bullet_variation(previous, chunk);
-        if (bullet_diff > 0) {
-            while (bullet_diff--) fprintf(PG, "%s\n", UL);
-        } else if (bullet_diff < 0) {
-            fprintf(PG, "%s\n", LI_C);
-            while (bullet_diff++) {
-                fprintf(PG, "%s\n", UL_C);
-            }
-        }
+        adjust_list_level(PG, UL, UL_C, bullet_diff);
 
         int enumeration_diff = compute_enumeration_variation(previous, chunk);
-        if (enumeration_diff > 0) {
-            while (enumeration_diff--) fprintf(PG, "%s\n", OL);
-        } else if (enumeration_diff < 0) {
-            fprintf(PG, "%s\n", LI_C);
-            while (enumeration_diff++) {
-                fprintf(PG, "%s\n", OL_C);
-            }
-        }
+        adjust_list_level(PG, OL, OL_C, enumeration_diff);
 
         if (need_open_list_item(previous, chunk)) {
             fprintf(PG, "%s\n", LI);
