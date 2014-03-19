@@ -3,6 +3,7 @@
 
 static void emit_markup_text(FILE *PG, text_field_t *text, bool paragraph);
 static void emit_news(FILE *PG, news_t *news);
+void emit_news_title(FILE *PG, news_t *news);
 
 /* WIP */
 void html_generate(newspaper_t *newspaper) {
@@ -144,7 +145,7 @@ bool need_open_list_item(text_chunk_t *previous, text_chunk_t *next) {
 
 void emit_news_title(FILE *PG, news_t *news) {
     if(news->text) {
-        fprintf(PG, "%sjavascript:void(0)\"", AHREF);
+        fprintf(PG, "%sjavascript:void(0)\"%s", AHREF, TAG_C);
     }
     emit_markup_text(PG, news->title, false);
     if(news->text) {
