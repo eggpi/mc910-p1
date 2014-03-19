@@ -19,8 +19,8 @@ void html_generate(newspaper_t *newspaper) {
 /* Create a new HTML file with some basic tags */
 FILE *html_new(char *page_title) {
     FILE *PG = fopen(HTML_FILE_NAME, "w");
-    fprintf(PG, "%s\n%s%s%s%s%s%s\n%s\n",
-            HTML, HEAD, META, TITLE, page_title, TITLE_C, HEAD_C, BODY);
+    fprintf(PG, "%s\n%s\n%s\n%s%s%s\n%s\n%s\n%s\n",
+            HTML, HEAD, META, TITLE, page_title, TITLE_C, LINK, HEAD_C, BODY);
 
     return PG;
 }
@@ -74,7 +74,8 @@ void emit_news(FILE *PG, news_t *news) {
     fprintf(PG, "%s\n", H2_C);
 
     if (news->image) {
-        fprintf(PG, "%s%s\"%s%s\n", IMGSRC, news->image, TAG_C, IMG_C);
+        fprintf(PG, "%s id=\"figura\"%s%s%s%s\" class=\"escala\"%s%s%s%s\n",
+                DIV, TAG_C, P, IMGSRC, news->image, TAG_C, IMG_C, P_C, DIV_C);
     }
 
     emit_markup_text(PG, news->abstract, true);
