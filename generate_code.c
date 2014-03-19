@@ -38,7 +38,7 @@ void html_news(FILE *PG, newspaper_t *newspaper) {
     list_node_t *node = NULL;
     list_iterator_t *it = NULL;
 
-    fprintf(PG, "%s cellspacing=\"0\" cellpadding=\"8\" width=\"100%%\" \
+    fprintf(PG, "%s cellspacing=\"0\" cellpadding=\"8\" width=\"1024\" \
             border=\"0\"%s\n%s\n", TABLE, TAG_C, TR);
     it = list_iterator_new(newspaper->structure->show, LIST_HEAD);
     while((node = list_iterator_next(it))) {
@@ -70,7 +70,7 @@ void html_news(FILE *PG, newspaper_t *newspaper) {
 
 void emit_news(FILE *PG, news_t *news) {
     fprintf(PG, "%s", H2);
-    emit_markup_text(PG, news->title, false);
+    emit_news_title(PG, news);
     fprintf(PG, "%s\n", H2_C);
 
     if (news->image) {
@@ -79,7 +79,8 @@ void emit_news(FILE *PG, news_t *news) {
     }
 
     emit_markup_text(PG, news->abstract, true);
-    fprintf(PG, "%s%s%s\n", P, news->author, P_C);
+    fprintf(PG, "%s%s%sAutor:%s %s%s%s\n",
+            BR, P, B, B_C, news->author, P_C, BR);
 }
 
 #define GEN_NEED_OPEN_ATTRIBUTE(attr)                                   \
@@ -139,6 +140,16 @@ bool need_open_list_item(text_chunk_t *previous, text_chunk_t *next) {
     }
 
     return true;
+}
+
+void emit_news_title(FILE *PG, news_t *news) {
+    if(news->text) {
+        fprintf(PG, "%sjavascript:void(0)\"", AHREF);
+    }
+    emit_markup_text(PG, news->title, false);
+    if(news->text) {
+        fprintf(PG, "%s\n", A_C);
+    }
 }
 
 void emit_markup_text(FILE *PG, text_field_t *text, bool paragraph) {
