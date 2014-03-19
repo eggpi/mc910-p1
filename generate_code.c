@@ -38,7 +38,8 @@ void html_news(FILE *PG, newspaper_t *newspaper) {
     list_node_t *node = NULL;
     list_iterator_t *it = NULL;
 
-    fprintf(PG, "%s\n%s\n", TABLE, TR);
+    fprintf(PG, "%s cellspacing=\"0\" cellpadding=\"8\" width=\"100%%\" \
+            border=\"0\"%s\n%s\n", TABLE, TAG_C, TR);
     it = list_iterator_new(newspaper->structure->show, LIST_HEAD);
     while((node = list_iterator_next(it))) {
         const char *name = node->val;
@@ -54,7 +55,8 @@ void html_news(FILE *PG, newspaper_t *newspaper) {
             remaining_col = newspaper_col;
         }
 
-        fprintf(PG, "%s colspan=%d align=center>\n", TD, news_col);
+        fprintf(PG, "%s width=\"%d%%\" colspan=\"%d\" align=\"justify\"%s\n",
+                TD, (int)(news_col * 100 / newspaper_col), news_col, TAG_C);
         emit_news(PG, news);
         fprintf(PG, "%s\n", TD_C);
 
@@ -71,7 +73,7 @@ void emit_news(FILE *PG, news_t *news) {
     fprintf(PG, "%s\n", H2_C);
 
     if (news->image) {
-        fprintf(PG, "%s%s%s%s\n", IMGSRC, news->image, TAG_C, IMG_C);
+        fprintf(PG, "%s%s\"%s%s\n", IMGSRC, news->image, TAG_C, IMG_C);
     }
 
     emit_markup_text(PG, news->abstract);
@@ -198,7 +200,7 @@ void emit_markup_text(FILE *PG, text_field_t *text) {
             fprintf(PG, "%s%s%s%s%s", AHREF, chunk->link, AHREF_C,
                     chunk->alt_text, A_C);
         } else if (chunk->image && chunk->caption) {
-            fprintf(PG, "%s%s %s\"%s\"%s%s", IMGSRC, chunk->image, ALT,
+            fprintf(PG, "%s%s\" %s\"%s\"%s%s", IMGSRC, chunk->image, ALT,
                     chunk->caption, TAG_C, IMG_C);
         }
 
