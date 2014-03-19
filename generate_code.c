@@ -3,7 +3,8 @@
 
 static void emit_markup_text(FILE *PG, text_field_t *text, bool paragraph);
 static void emit_news(FILE *PG, news_t *news);
-void emit_news_title(FILE *PG, news_t *news);
+static void emit_full_text(FILE *PG, news_t *news);
+static void emit_news_title(FILE *PG, news_t *news);
 
 /* WIP */
 void html_generate(newspaper_t *newspaper) {
@@ -59,6 +60,7 @@ border=\"0\" class=\"content\"%s\n%s\n", TABLE, TAG_C, TR);
         fprintf(PG, "%s width=\"%d%%\" colspan=\"%d\"%s\n",
                 TD, (int)(news_col * 100 / newspaper_col), news_col, TAG_C);
         emit_news(PG, news);
+        emit_full_text(PG, news);
         fprintf(PG, "%s\n", TD_C);
 
         remaining_col -= news_col;
@@ -173,6 +175,12 @@ void emit_news_title(FILE *PG, news_t *news) {
         fprintf(PG, "%s", A_C);
     }
     fprintf(PG, "%s\n", H3_C);
+}
+
+void emit_full_text(FILE *PG, news_t *news) {
+    if(news->text) {
+        fprintf(PG, "%s class=\"text\"%sNot&iacute;cia%s\n", DIV, TAG_C, DIV_C);
+    }
 }
 
 void adjust_list_level(FILE *PG, const char *open_tag, const char *close_tag,
