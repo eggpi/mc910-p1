@@ -39,8 +39,8 @@ void html_news(FILE *PG, newspaper_t *newspaper) {
     list_node_t *node = NULL;
     list_iterator_t *it = NULL;
 
-    fprintf(PG, "%s cellspacing=\"0\" cellpadding=\"8\" width=\"1024\" \
-            border=\"0\"%s\n%s\n", TABLE, TAG_C, TR);
+    fprintf(PG, "%s cellspacing=\"0\" cellpadding=\"8\" width=\"80%%\" \
+border=\"0\" class=\"content\"%s\n%s\n", TABLE, TAG_C, TR);
     it = list_iterator_new(newspaper->structure->show, LIST_HEAD);
     while((node = list_iterator_next(it))) {
         const char *name = node->val;
@@ -56,8 +56,7 @@ void html_news(FILE *PG, newspaper_t *newspaper) {
             remaining_col = newspaper_col;
         }
 
-        fprintf(PG, "%s width=\"%d%%\" colspan=\"%d\" align=\"justify\" \
-                valign=\"top\"%s\n",
+        fprintf(PG, "%s width=\"%d%%\" colspan=\"%d\"%s\n",
                 TD, (int)(news_col * 100 / newspaper_col), news_col, TAG_C);
         emit_news(PG, news);
         fprintf(PG, "%s\n", TD_C);
@@ -77,23 +76,29 @@ void emit_news(FILE *PG, news_t *news) {
         const char *attr = n->val;
 
         if (!strcmp(attr, "title")) {
-            fprintf(PG, "%s", H2);
             emit_news_title(PG, news);
-            fprintf(PG, "%s\n", H2_C);
-        } else if (!strcmp(attr, "image") && news->image) {
-            fprintf(PG, "%s id=\"figura\"%s%s%s%s\" class=\"escala\"%s%s%s%s\n",
-                    DIV, TAG_C, P, IMGSRC, news->image, TAG_C, IMG_C, P_C,
+        }
+        else if (!strcmp(attr, "image") && news->image) {
+            fprintf(PG, "%s class=\"image\"%s%s%s%s\" /%s%s%s\n",
+                    DIV, TAG_C, P, IMGSRC, news->image, TAG_C, P_C,
                     DIV_C);
-        } else if (!strcmp(attr, "abstract")) {
+        }
+        else if (!strcmp(attr, "abstract")) {
             emit_markup_text(PG, news->abstract, true);
-        } else if (!strcmp(attr, "author")) {
-            fprintf(PG, "%s%s%sAutor:%s %s%s%s\n",
-                    BR, P, B, B_C, news->author, P_C, BR);
-        } else if (!strcmp(attr, "source")) {
-            fprintf(PG, "%s%sFonte:%s %s%s\n", P, B, B_C, news->source, P_C);
-        } else if (!strcmp(attr, "date")) {
-            fprintf(PG, "%s%s%s\n", P, news->date, P_C);
-        } else {
+        }
+        else if (!strcmp(attr, "author")) {
+            fprintf(PG, "%s class=\"info\"%s%s class=\"info\"%sAutor:%s \
+%s%s\n", DIV, TAG_C, SPAN, TAG_C, SPAN_C, news->author, DIV_C);
+        }
+        else if (!strcmp(attr, "source") && news->source) {
+            fprintf(PG, "%s class=\"info\"%s%s class=\"info\"%sFonte:%s \
+%s%s\n", DIV, TAG_C, SPAN, TAG_C, SPAN_C, news->source, DIV_C);
+        }
+        else if (!strcmp(attr, "date") && news->date) {
+            fprintf(PG, "%s class=\"info\"%s%s class=\"info\"%sData:%s \
+%s%s\n", DIV, TAG_C, SPAN, TAG_C, SPAN_C, news->date, DIV_C);
+        }
+        else {
             fprintf(stderr, "Unknown news attribute '%s'\n", attr);
         }
     }
@@ -159,13 +164,15 @@ bool need_open_list_item(text_chunk_t *previous, text_chunk_t *next) {
 }
 
 void emit_news_title(FILE *PG, news_t *news) {
+    fprintf(PG, "%s", H3);
     if(news->text) {
         fprintf(PG, "%sjavascript:void(0)\"%s", AHREF, TAG_C);
     }
     emit_markup_text(PG, news->title, false);
     if(news->text) {
-        fprintf(PG, "%s\n", A_C);
+        fprintf(PG, "%s", A_C);
     }
+    fprintf(PG, "%s\n", H3_C);
 }
 
 void adjust_list_level(FILE *PG, const char *open_tag, const char *close_tag,

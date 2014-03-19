@@ -22,10 +22,10 @@ scanner.c: scanner.l
 scanner.o: scanner.c
 	$(CC) $(CFLAGS) -Wno-unused-function -I$(INCLUDE) -c -o scanner.o scanner.c
 
-parse_tree.o: parse_tree.c
+parse_tree.o: parse_tree.c parse_tree.h
 	$(CC) $(CFLAGS) -I$(INCLUDE) -c -o parse_tree.o parse_tree.c
 
-generate_code.o: generate_code.c
+generate_code.o: generate_code.c generate_code.h
 	$(CC) $(CFLAGS) -I$(INCLUDE) -c -o generate_code.o generate_code.c
 
 list: list/src/list.c

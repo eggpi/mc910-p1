@@ -7,12 +7,12 @@
 
 #define HTML_FILE_NAME "sempre_online.html"
 
-#define HTML "<html>"
+#define HTML "<!DOCTYPE html>\n<html lang=\"pt-br\">"
 #define HTML_C "</html>"
 #define HEAD "<head>"
 #define HEAD_C "</head>"
 #define META "<meta http-equiv=\"Content-Type\" \
-content=\"text/html; charset=UTF-8\">"
+content=\"text/html; charset=UTF-8\" />"
 #define TITLE "<title>"
 #define TITLE_C "</title>"
 #define LINK "<link rel=\"stylesheet\" type=\"text/css\" \
@@ -47,6 +47,8 @@ href=\"style/style.css\" media=\"screen\">"
 #define AHREF "<a href=\""
 #define AHREF_C "\">"
 #define A_C "</a>"
+#define SPAN "<span"
+#define SPAN_C "</span>"
 #define UL "<ul>"
 #define LI "<li>"
 #define LI_C "</li>"
