@@ -71,7 +71,7 @@ void emit_news(FILE *PG, news_t *news) {
     fprintf(PG, "%s\n", H2_C);
 
     if (news->image) {
-        fprintf(PG, "%s%s%s%s\n", IMGSRC, news->image, IMGSRC_C, IMG_C);
+        fprintf(PG, "%s%s%s%s\n", IMGSRC, news->image, TAG_C, IMG_C);
     }
 
     emit_markup_text(PG, news->abstract);
@@ -199,7 +199,7 @@ void emit_markup_text(FILE *PG, text_field_t *text) {
                     chunk->alt_text, A_C);
         } else if (chunk->image && chunk->caption) {
             fprintf(PG, "%s%s %s\"%s\"%s%s", IMGSRC, chunk->image, ALT,
-                    chunk->caption, IMGSRC_C, IMG_C);
+                    chunk->caption, TAG_C, IMG_C);
         }
 
         fprintf(PG, "%s", chunk->chunk);
