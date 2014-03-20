@@ -64,29 +64,32 @@ div.image p img {
 }
 
 div.text_background {
-        position: absolute;
-        top: 0%;
-        left: 0%;
-        width: 100%;
-        height: 100%;
-        background-color: black;
-        z-index:1001;
-        -moz-opacity: 0.8;
-        opacity:.80;
-        filter: alpha(opacity=80);
+    position: fixed;
+    background-color: #000000;
+    background-repeat: repeat;
+    opacity: 0.50;
+    -moz-opacity: 0.50;
+    filter: alpha(opacity=50);
+    z-index: 20;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    display: none;
 }
 
 div.text {
-        position: absolute;
-        top: 25%;
-        left: 25%;
-        width: 50%;
-        height: 50%;
-        padding: 16px;
-        border: 16px solid orange;
-        background-color: white;
-        z-index:1002;
-        overflow: auto;
+    position: fixed;
+    background-color: #FFFFFF;
+    z-index:21;
+    width: 50%;
+    height: 50%;
+    top: 25%;
+    left: 25%;
+    padding: 16px;
+    border: 16px solid #0099CC;
+    overflow: auto;
+    display: none;
 }
 
 div.info {

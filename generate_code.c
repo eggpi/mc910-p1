@@ -168,7 +168,10 @@ bool need_open_list_item(text_chunk_t *previous, text_chunk_t *next) {
 void emit_news_title(FILE *PG, news_t *news) {
     fprintf(PG, "%s", H3);
     if(news->text) {
-        fprintf(PG, "%sjavascript:void(0)\"%s", AHREF, TAG_C);
+        fprintf(PG, "%sjavascript:void(0)\" \
+onclick=\"javascript:document.getElementById('back').style.display='block'; \
+javascript:document.getElementById('front').style.display='block'\"%s",
+        AHREF, TAG_C);
     }
     emit_markup_text(PG, news->title, false);
     if(news->text) {
@@ -179,7 +182,12 @@ void emit_news_title(FILE *PG, news_t *news) {
 
 void emit_full_text(FILE *PG, news_t *news) {
     if(news->text) {
-        fprintf(PG, "%s class=\"text\"%sNot&iacute;cia%s\n", DIV, TAG_C, DIV_C);
+        fprintf(PG, "%s id=\"front\" class=\"text\"%sNot&iacute;cia%s\n",
+                DIV, TAG_C, DIV_C);
+        fprintf(PG, "%s id=\"back\" class=\"text_background\" \
+onclick=\"javascript:this.style.display='none'; \
+javascript:document.getElementById('front').style.display='none'\"%s%s\n",
+                DIV, TAG_C, DIV_C);
     }
 }
 
