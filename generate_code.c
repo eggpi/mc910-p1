@@ -187,6 +187,9 @@ onclick=\"javascript:showNews('%s');\"%s",
 void emit_full_text(FILE *PG, news_t *news) {
     if(news->text) {
         fprintf(PG, "%s id=\"%s\" class=\"text\"%s\n", DIV, news->name, TAG_C);
+        fprintf(PG, "%s", H2);
+        emit_markup_text(PG, news->title, false);
+        fprintf(PG, "%s\n", H2_C);
         emit_markup_text(PG, news->text, false);
         fprintf(PG, "%s\n", DIV_C);
     }
@@ -253,8 +256,10 @@ void emit_markup_text(FILE *PG, text_field_t *text, bool paragraph) {
             fprintf(PG, "%s%s%s%s%s", AHREF, chunk->link, AHREF_C,
                     chunk->alt_text, A_C);
         } else if (chunk->image && chunk->caption) {
-            fprintf(PG, "%s%s\" %s\"%s\"%s%s", IMGSRC, chunk->image, ALT,
-                    chunk->caption, TAG_C, IMG_C);
+            fprintf(PG, "%s class=\"image\" style=\"float: right; \
+width: 20%%\"%s%s%s%s\" alt=\"%s\" title=\"%s\" /%s%s%s%s\n",
+                    DIV, TAG_C, P, IMGSRC, chunk->image, chunk->caption,
+                    chunk->caption, TAG_C, P_C, chunk->caption, DIV_C);
         }
 
         fprintf(PG, "%s", chunk->chunk);
