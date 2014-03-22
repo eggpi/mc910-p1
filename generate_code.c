@@ -40,6 +40,11 @@ void html_news(FILE *PG, newspaper_t *newspaper) {
     list_node_t *node = NULL;
     list_iterator_t *it = NULL;
 
+    fprintf(PG, "%s id=\"back\" class=\"text_background\" \
+onclick=\"javascript:this.style.display='none'; \
+javascript:document.getElementById('front').style.display='none'\"%s%s\n",
+    DIV, TAG_C, DIV_C);
+
     fprintf(PG, "%s cellspacing=\"0\" cellpadding=\"8\" width=\"80%%\" \
 border=\"0\" class=\"content\"%s\n%s\n", TABLE, TAG_C, TR);
     it = list_iterator_new(newspaper->structure->show, LIST_HEAD);
@@ -169,9 +174,9 @@ void emit_news_title(FILE *PG, news_t *news) {
     fprintf(PG, "%s", H3);
     if(news->text) {
         fprintf(PG, "%sjavascript:void(0)\" \
-onclick=\"javascript:document.getElementById('back').style.display='block'; \
-javascript:document.getElementById('front').style.display='block'\"%s",
-        AHREF, TAG_C);
+onclick=\"javascript:showNews(%s); \
+javascript:document.getElementById('%s').style.display='block'\"%s",
+        AHREF, news->name, news->name, TAG_C);
     }
     emit_markup_text(PG, news->title, false);
     if(news->text) {
@@ -182,12 +187,9 @@ javascript:document.getElementById('front').style.display='block'\"%s",
 
 void emit_full_text(FILE *PG, news_t *news) {
     if(news->text) {
-        fprintf(PG, "%s id=\"front\" class=\"text\"%sNot&iacute;cia%s\n",
-                DIV, TAG_C, DIV_C);
-        fprintf(PG, "%s id=\"back\" class=\"text_background\" \
-onclick=\"javascript:this.style.display='none'; \
-javascript:document.getElementById('front').style.display='none'\"%s%s\n",
-                DIV, TAG_C, DIV_C);
+        fprintf(PG, "%s id=\"%s\" class=\"text\"%s\n", DIV, news->name, TAG_C);
+        emit_markup_text(PG, news->text, false);
+        fprintf(PG, "%s\n", DIV_C);
     }
 }
 
