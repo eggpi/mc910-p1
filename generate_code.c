@@ -6,7 +6,7 @@ static void emit_news(FILE *PG, news_t *news);
 static void emit_full_text(FILE *PG, news_t *news);
 static void emit_news_title(FILE *PG, news_t *news);
 
-/* WIP */
+/* Generate the HTML output file */
 void html_generate(newspaper_t *newspaper) {
     FILE *PG = NULL;
 
@@ -21,8 +21,10 @@ void html_generate(newspaper_t *newspaper) {
 /* Create a new HTML file with some basic tags */
 FILE *html_new(char *page_title) {
     FILE *PG = fopen(HTML_FILE_NAME, "w");
-    fprintf(PG, "%s\n%s\n%s\n%s%s%s\n%s\n%s\n%s\n",
-            HTML, HEAD, META, TITLE, page_title, TITLE_C, LINK, HEAD_C, BODY);
+    fprintf(PG, 
+            "%s\n%s\n%s\n%s%s%s\n%s\n%s src=\"script/script.js\"%s%s\n%s\n%s\n",
+            HTML, HEAD, META, TITLE, page_title, TITLE_C, LINK, SCRIPT, TAG_C,
+            SCRIPT_C, HEAD_C, BODY);
 
     return PG;
 }
@@ -41,9 +43,7 @@ void html_news(FILE *PG, newspaper_t *newspaper) {
     list_iterator_t *it = NULL;
 
     fprintf(PG, "%s id=\"back\" class=\"text_background\" \
-onclick=\"javascript:this.style.display='none'; \
-javascript:document.getElementById('front').style.display='none'\"%s%s\n",
-    DIV, TAG_C, DIV_C);
+onclick=\"javascript:hideNews();\"%s%s\n", DIV, TAG_C, DIV_C);
 
     fprintf(PG, "%s cellspacing=\"0\" cellpadding=\"8\" width=\"80%%\" \
 border=\"0\" class=\"content\"%s\n%s\n", TABLE, TAG_C, TR);
@@ -174,9 +174,8 @@ void emit_news_title(FILE *PG, news_t *news) {
     fprintf(PG, "%s", H3);
     if(news->text) {
         fprintf(PG, "%sjavascript:void(0)\" \
-onclick=\"javascript:showNews(%s); \
-javascript:document.getElementById('%s').style.display='block'\"%s",
-        AHREF, news->name, news->name, TAG_C);
+onclick=\"javascript:showNews('%s');\"%s",
+        AHREF, news->name, TAG_C);
     }
     emit_markup_text(PG, news->title, false);
     if(news->text) {

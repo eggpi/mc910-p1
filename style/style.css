@@ -82,10 +82,10 @@ div.text {
     position: fixed;
     background-color: #FFFFFF;
     z-index:21;
-    width: 50%;
-    height: 50%;
-    top: 25%;
-    left: 25%;
+    width: 70%;
+    height: 70%;
+    top: 10%;
+    left: 15%;
     padding: 16px;
     border: 16px solid #0099CC;
     overflow: auto;
