@@ -57,7 +57,7 @@ href=\"style/style.css\" media=\"screen\" />"
 #define OL "<ol>"
 #define OL_C "</ol>"
 
-#define PARAGRAPH_INDENTATION "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"
+#define PARAGRAPH_INDENTATION "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
 
 
 void html_generate(newspaper_t *newspaper);
