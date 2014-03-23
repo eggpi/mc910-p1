@@ -8,14 +8,24 @@
 
 #define TEXT_CHUNK_SIZE 1024
 
+#define TEXT_CHUNK_ATTR_CARRY_OVER -1
+
 typedef struct {
+    // attributes for which we're only interested
+    // in transitions (false to true or true to false)
+    // are boolean.
     bool bold;
     bool italics;
     bool paragraph;
-    unsigned int indentation;
-    unsigned int bullet_level;
-    unsigned int enumeration_level;
-    unsigned int item_counter;
+
+    // use integers for attributes for which we care about
+    // transitions _and_ the values associated with them.
+    // the special value TEXT_CHUNK_ATTR_CARRY_OVER
+    // means 'keep the same value as the previous chunk',
+    // and all other values signal a transition.
+    int indentation;
+    int bullet_level;
+    int enumeration_level;
 
     char *link;
     char *alt_text;

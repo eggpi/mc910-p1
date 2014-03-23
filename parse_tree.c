@@ -70,11 +70,19 @@ text_chunk_t *text_chunk_new_copy_attrs(text_chunk_t *copy) {
     text_chunk_t *new_chunk = text_chunk_new();
 
     if (copy) {
-        memcpy(new_chunk, copy, sizeof(text_chunk_t));
         new_chunk->_pos = 0;
+        memset(new_chunk->chunk, '\0', TEXT_CHUNK_SIZE);
+
         new_chunk->link = new_chunk->alt_text = NULL;
         new_chunk->image = new_chunk->caption = NULL;
-        memset(new_chunk->chunk, '\0', TEXT_CHUNK_SIZE);
+
+        new_chunk->bold = copy->bold;
+        new_chunk->italics = copy->italics;
+        new_chunk->paragraph = copy->paragraph;
+
+        new_chunk->indentation = TEXT_CHUNK_ATTR_CARRY_OVER;
+        new_chunk->bullet_level = TEXT_CHUNK_ATTR_CARRY_OVER;
+        new_chunk->enumeration_level = TEXT_CHUNK_ATTR_CARRY_OVER;
     }
 
     return new_chunk;

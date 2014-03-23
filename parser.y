@@ -20,7 +20,6 @@ char *text_field_to_string(text_field_t *field);
 bool validate_newspaper(newspaper_t *newspaper);
 
 static newspaper_t *newspaper;
-static unsigned int item_counter;
 %}
 
 %union{
@@ -189,7 +188,6 @@ quoted_string_markup:
 
         new->bullet_level = $2;
         new->enumeration_level = 0;
-        new->item_counter = ++item_counter;
         list_rpush($$->chunks, list_node_new(new));
     }
     | quoted_string_markup T_ENUMERATION {
@@ -198,7 +196,6 @@ quoted_string_markup:
 
         new->enumeration_level = $2;
         new->bullet_level = 0;
-        new->item_counter = ++item_counter;
         list_rpush($$->chunks, list_node_new(new));
     }
 ;

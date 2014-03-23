@@ -138,18 +138,23 @@ GEN_NEED_CLOSE_ATTRIBUTE(italics)
 GEN_NEED_OPEN_ATTRIBUTE(paragraph)
 GEN_NEED_CLOSE_ATTRIBUTE(paragraph)
 
-bool need_indentation(text_chunk_t *previous, text_chunk_t *next) {
-    if (previous) {
-        return previous->indentation != next->indentation;
-    }
-
-    return !!next->indentation;
+bool need_indentation(text_chunk_t *chunk) {
+    if (chunk->indentation == 0) return false;
+    return chunk->indentation != TEXT_CHUNK_ATTR_CARRY_OVER;
 }
 
 #define GEN_COMPUTE_LEVEL_VARIATION(type)                                        \
-    int compute_##type##_variation(text_chunk_t *previous, text_chunk_t *next) { \
+    int compute_##type##_variation(text_chunk_t *previous, text_chunk_t *next,   \
+                                   int current_level) {                          \
+        if (next->type##_level == TEXT_CHUNK_ATTR_CARRY_OVER) {                  \
+            return 0;                                                            \
+        }                                                                        \
+                                                                                 \
         if (previous) {                                                          \
-            return next->type##_level - previous->type##_level;                  \
+            current_level =                                                      \
+                (previous->type##_level == TEXT_CHUNK_ATTR_CARRY_OVER) ?         \
+                current_level : previous->type##_level;                          \
+            return next->type##_level - current_level;                           \
         }                                                                        \
                                                                                  \
         return next->type##_level;                                               \
@@ -158,16 +163,13 @@ bool need_indentation(text_chunk_t *previous, text_chunk_t *next) {
 GEN_COMPUTE_LEVEL_VARIATION(bullet)
 GEN_COMPUTE_LEVEL_VARIATION(enumeration)
 
-bool need_open_list_item(text_chunk_t *previous, text_chunk_t *next) {
-    if (next->bullet_level == 0 && next->enumeration_level == 0) {
+bool need_open_list_item(text_chunk_t *chunk) {
+    if (chunk->bullet_level == 0 && chunk->enumeration_level == 0) {
         return false;
     }
 
-    if (previous) {
-        return previous->item_counter != next->item_counter;
-    }
-
-    return true;
+    return chunk->bullet_level != TEXT_CHUNK_ATTR_CARRY_OVER ||
+           chunk->enumeration_level != TEXT_CHUNK_ATTR_CARRY_OVER;
 }
 
 void emit_news_title(FILE *PG, news_t *news) {
@@ -220,6 +222,8 @@ void emit_markup_text(FILE *PG, text_field_t *text, bool paragraph) {
     if(paragraph) {
         fprintf(PG, "%s\n", P);
     }
+
+    int bullet_lvl = 0, enum_lvl = 0;
     while ((n = list_iterator_next(it))) {
         text_chunk_t *chunk = n->val;
 
@@ -228,13 +232,15 @@ void emit_markup_text(FILE *PG, text_field_t *text, bool paragraph) {
         if (need_close_paragraph(previous, chunk)) fprintf(PG, "%s", H3_C);
 
         // adjust the level for bullet lists or enumeration lists
-        int bullet_diff = compute_bullet_variation(previous, chunk);
+        int bullet_diff = compute_bullet_variation(previous, chunk, bullet_lvl);
         adjust_list_level(PG, UL, UL_C, bullet_diff);
+        bullet_lvl += bullet_diff;
 
-        int enumeration_diff = compute_enumeration_variation(previous, chunk);
-        adjust_list_level(PG, OL, OL_C, enumeration_diff);
+        int enum_diff = compute_enumeration_variation(previous, chunk, enum_lvl);
+        adjust_list_level(PG, OL, OL_C, enum_diff);
+        enum_lvl += enum_diff;
 
-        if (need_open_list_item(previous, chunk)) {
+        if (need_open_list_item(chunk)) {
             fprintf(PG, "%s\n", LI);
         }
 
@@ -242,11 +248,11 @@ void emit_markup_text(FILE *PG, text_field_t *text, bool paragraph) {
         if (need_open_italics(previous, chunk)) fprintf(PG, "%s", I);
         if (need_open_paragraph(previous, chunk)) fprintf(PG, "%s", H3);
 
-        if (need_indentation(previous, chunk)) {
+        if (need_indentation(chunk)) {
             if (previous != NULL) fprintf(PG, "%s\n", P_C);
             fprintf(PG, "%s\n", P);
 
-            unsigned int indentation = chunk->indentation;
+            int indentation = chunk->indentation;
             while (indentation--) fprintf(PG, PARAGRAPH_INDENTATION);
         }
 
