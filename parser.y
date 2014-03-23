@@ -14,6 +14,7 @@ int yyerror(const char* errmsg);
 int yylex(void);
 
 char *string_to_lower(char *str);
+void adjust_indices(char **begin, char **end);
 void parse_text_link(text_chunk_t *chunk, const char *link);
 void parse_image_link(text_chunk_t *chunk, const char *link);
 char *text_field_to_string(text_field_t *field);
@@ -347,15 +348,34 @@ char *string_to_lower(char *str) {
     return str;
 }
 
+/* Adjust indices to create correct links and caption despite blank spaces */
+void adjust_indices(char **begin, char **end) {
+    while(isspace(**begin)) {
+        (*begin)++;
+    }
+    while(isspace(**end)) {
+        (*end)--;
+    }
+    (*end)++;
+}
+
 void parse_text_link(text_chunk_t *chunk, const char *link) {
     // link has the form [ url | text ]; parse it
     char *sep = strchr(link, '|');
+    char *url_end = sep - 1;
+    char *text_end = NULL;
     if (sep == NULL) {
         chunk->link = strndup(link + 1, strlen(link) - 2);
         chunk->alt_text = strdup(chunk->link);
     } else {
-        chunk->link = strndup(link + 1, (sep - link - 1));
-        chunk->alt_text = strndup(sep + 1, strlen(sep) - 2);
+        link += 1; // skip "["
+        adjust_indices((char **)&link, &url_end);
+        chunk->link = strndup(link, url_end - link);
+
+        sep +=1; // skip "|"
+        text_end = (char *)link + strlen(link) - 2;
+        adjust_indices(&sep, &text_end);
+        chunk->alt_text = strndup(sep, text_end - sep);
     }
 
     return;
@@ -364,8 +384,16 @@ void parse_text_link(text_chunk_t *chunk, const char *link) {
 void parse_image_link(text_chunk_t *chunk, const char *link) {
     // link has the form [[ image | caption ]]; parse it
     char *sep = strchr(link, '|');
-    chunk->image = strndup(link + 2, (sep - link - 2));
-    chunk->caption = strndup(sep + 2, strlen(sep) - 4);
+    char *image_end = sep - 1;
+    char *caption_end = NULL;
+    link += 2; // skip "[["
+    adjust_indices((char **)&link, &image_end);
+    chunk->image = strndup(link, image_end - link);
+
+    sep += 1; // skip "|"
+    caption_end = (char *)link + strlen(link) - 3;
+    adjust_indices(&sep, &caption_end);
+    chunk->caption = strndup(sep, caption_end - sep);
 
     return;
 }
@@ -430,21 +458,12 @@ int main(void)
 {
     yyparse();
 
+    /* Test newspaper for correctness */
     if (!newspaper || (!verify_newspaper(newspaper))) {
         return 1;
     }
  
-/*  some tests
-    printf("%s\n", ((text_chunk_t *)list_at(newspaper->title->chunks,
-                    0)->val)->chunk);
-    printf("%d\n", newspaper->structure->col);
-    printf("%s\n", (char *)list_at(newspaper->structure->show, 2)->val);
-    printf("%s\n", ((news_t *)list_at(newspaper->news, 2)->val)->name);
-
-printf("%d\n", structure_get_col(newspaper->structure));
-printf("%d\n", 
-        structure_get_col(((news_t *)list_at(newspaper->news,0)->val)->structure));
-*/
+    /* Generate the HTML newspaper */
     html_generate(newspaper);
     newspaper_free(newspaper);
 
