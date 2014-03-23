@@ -16,7 +16,9 @@ content=\"text/html; charset=UTF-8\" />"
 #define TITLE "<title>"
 #define TITLE_C "</title>"
 #define LINK "<link rel=\"stylesheet\" type=\"text/css\" \
-href=\"style/style.css\" media=\"screen\" />"
+href=\"style/style.css\" media=\"screen\" />\n<link rel=\"stylesheet\" \
+type=\"text/css\" \
+href=\"http://fonts.googleapis.com/css?family=Merriweather|Merriweather+Sans|Playfair+Display+SC\" />"
 #define SCRIPT "<script type=\"text/javascript\""
 #define SCRIPT_C "</script>"
 #define BODY "<body>"
