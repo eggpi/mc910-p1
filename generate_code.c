@@ -32,7 +32,6 @@ FILE *html_new(char *page_title) {
 /* Print a page header using h1 tag */
 void html_header(FILE *PG, char *page_header) {
     fprintf(PG, "%s%s%s\n", H1, page_header, H1_C);
-    fprintf(PG, "%s id=\"date\"%s&nbsp;%s", DIV, TAG_C, DIV_C);
 }
 
 /* Print the news */
@@ -42,6 +41,8 @@ void html_news(FILE *PG, newspaper_t *newspaper) {
     unsigned int news_col;
     list_node_t *node = NULL;
     list_iterator_t *it = NULL;
+
+    fprintf(PG, "%s id=\"date\"%s%s%s", DIV, TAG_C, newspaper->date, DIV_C);
 
     fprintf(PG, "%s id=\"back\" class=\"text_background\" \
 onclick=\"javascript:hideNews();\"%s%s\n", DIV, TAG_C, DIV_C);
