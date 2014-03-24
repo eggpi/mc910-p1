@@ -32,6 +32,7 @@ FILE *html_new(char *page_title) {
 /* Print a page header using h1 tag */
 void html_header(FILE *PG, char *page_header) {
     fprintf(PG, "%s%s%s\n", H1, page_header, H1_C);
+    fprintf(PG, "%s id=\"date\"%s&nbsp;%s", DIV, TAG_C, DIV_C);
 }
 
 /* Print the news */
