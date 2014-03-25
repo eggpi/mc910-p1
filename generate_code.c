@@ -165,6 +165,19 @@ bool need_indentation(text_chunk_t *chunk) {
 GEN_COMPUTE_LEVEL_VARIATION(bullet)
 GEN_COMPUTE_LEVEL_VARIATION(enumeration)
 
+bool need_close_list_item(text_chunk_t *chunk, int bullet_diff, int enum_diff) {
+    if (chunk->bullet_level == 0 && chunk->enumeration_level == 0) {
+        return false;
+    }
+
+    if (bullet_diff || enum_diff) {
+        return false;
+    }
+
+    return chunk->bullet_level != TEXT_CHUNK_ATTR_CARRY_OVER ||
+           chunk->enumeration_level != TEXT_CHUNK_ATTR_CARRY_OVER;
+}
+
 bool need_open_list_item(text_chunk_t *chunk) {
     if (chunk->bullet_level == 0 && chunk->enumeration_level == 0) {
         return false;
@@ -241,6 +254,10 @@ void emit_markup_text(FILE *PG, text_field_t *text, bool paragraph) {
         int enum_diff = compute_enumeration_variation(previous, chunk, enum_lvl);
         adjust_list_level(PG, OL, OL_C, enum_diff);
         enum_lvl += enum_diff;
+
+        if (need_close_list_item(chunk, bullet_diff, enum_diff)) {
+            fprintf(PG, "%s\n", LI_C);
+        }
 
         if (need_open_list_item(chunk)) {
             fprintf(PG, "%s\n", LI);
