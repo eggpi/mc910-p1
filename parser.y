@@ -18,6 +18,7 @@ void adjust_indices(char **begin, char **end);
 void parse_text_link(text_chunk_t *chunk, const char *link);
 void parse_image_link(text_chunk_t *chunk, const char *link);
 char *text_field_to_string(text_field_t *field);
+list_node_t *list_find_str(list_t *self, char *str);
 bool validate_newspaper(newspaper_t *newspaper);
 
 static newspaper_t *newspaper;
@@ -416,11 +417,26 @@ char *text_field_to_string(text_field_t *field) {
     return text;
 }
 
+/* Find a string in node in a list */
+list_node_t *list_find_str(list_t *self, char *str) {
+    list_node_t *n = NULL;
+    list_iterator_t *it = list_iterator_new(self, LIST_HEAD);
+    while((n = list_iterator_next(it))) {
+        if(!strcmp(n->val, str)) {
+            return n;
+        }
+    }
+
+    list_iterator_destroy(it);
+    return NULL;
+}
+
 bool verify_newspaper(newspaper_t *newspaper) {
     // The grammar doesn't check for the presence of all
     // mandatory attributes in each news entry, so do it here.
 
-    int index = 0;
+    list_t *found_news = list_new();
+    int index = 1;
     list_node_t *node = NULL;
     list_iterator_t *it = list_iterator_new(newspaper->news, LIST_HEAD);
     while ((node = list_iterator_next(it))) {
@@ -437,10 +453,24 @@ bool verify_newspaper(newspaper_t *newspaper) {
             return false;
         }
 
+        /* Verifiy if a news was already included in newspaper */
+        if(list_find_str(found_news, news->name)) {
+            char *errmsg = NULL;
+            asprintf(&errmsg, "%d-th news is repeated.", index);
+            yyerror(errmsg);
+            free(errmsg);
+            list_destroy(found_news);
+            return false;
+        }
+        else {
+            list_rpush(found_news, list_node_new(news->name));
+        }
+
         index++;
     }
 
     list_iterator_destroy(it);
+    list_destroy(found_news);
     return true;
 }
 
